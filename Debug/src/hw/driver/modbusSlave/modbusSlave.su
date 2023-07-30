@@ -1,0 +1,7 @@
+../src/hw/driver/modbusSlave/modbusSlave.c:17:6:ModbusInit	16	static
+../src/hw/driver/modbusSlave/modbusSlave.c:25:6:sendData	32	static
+../src/hw/driver/modbusSlave/modbusSlave.c:35:6:checkData	40	static
+../src/hw/driver/modbusSlave/modbusSlave.c:59:6:modbusException	16	static
+../src/hw/driver/modbusSlave/modbusSlave.c:71:9:readHoldingRegs	32	static
+../src/hw/driver/modbusSlave/modbusSlave.c:117:9:readInputRegs	32	static
+../src/hw/driver/modbusSlave/modbusSlave.c:162:9:writeSingleReg	32	static
