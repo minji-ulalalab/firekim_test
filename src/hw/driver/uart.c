@@ -49,6 +49,8 @@ UART_HandleTypeDef huart2; //uart2: RS485 communication
 DMA_HandleTypeDef hdma_usart1_rx;
 DMA_HandleTypeDef hdma_usart2_rx;
 
+volatile uint8_t isUartTransmitting = 0;
+
 
 bool uartInit(void)
 {
@@ -209,6 +211,7 @@ uint32_t uartWrite(uint8_t ch, uint8_t *p_data, uint32_t length)
   {
     case _DEF_UART1:
       status = HAL_UART_Transmit(&huart1, p_data, length, 100);
+
       if (status == HAL_OK)
       {
         ret = length;
@@ -219,6 +222,10 @@ uint32_t uartWrite(uint8_t ch, uint8_t *p_data, uint32_t length)
       if (status == HAL_OK)
       {
         ret = length;
+      }
+      else
+      {
+        uartPrintf(_DEF_UART1, "%c", status);
       }
       break;
   }
@@ -318,10 +325,16 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
     }
 }
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+    if (huart == &huart2) // 송신 완료한 UART를 확인하고 필요하다면 해당하는 huart 변수를 사용
+    {
+        isUartTransmitting = 0; // UART 송신이 완료됨을 표시
+    }
+}
 
 void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
 {
-  bool ret = true;
 
   if (huart->Instance == USART1) //case _DEF_UART1
   {
@@ -340,17 +353,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     HAL_UART_DeInit(&huart1);
     if (HAL_UART_Init(&huart1) != HAL_OK)
     {
-      ret = false;
+      uartPrintf(_DEF_UART1, "UART1 INIT: Fail");
     }
     else
     {
-      ret = true;
       is_open[_DEF_UART1] = true;
 
 
       if(HAL_UARTEx_ReceiveToIdle_DMA(&huart1, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
       {
-        ret = false;
+        uartPrintf(_DEF_UART1, "UART1 DMA: Fail");
       }
       __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
       }
@@ -374,17 +386,16 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
     HAL_UART_DeInit(&huart2);
     if (HAL_UART_Init(&huart2) != HAL_OK)
     {
-      ret = false;
+      uartPrintf(_DEF_UART1, "UART2 INIT: Fail");
     }
     else
     {
-      ret = true;
       is_open[_DEF_UART2] = true;
 
 
       if(HAL_UARTEx_ReceiveToIdle_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
       {
-        ret = false;
+        uartPrintf(_DEF_UART1, "UART2 DMA: Fail");
       }
       __HAL_DMA_DISABLE_IT(&hdma_usart2_rx, DMA_IT_HT);
       }
@@ -392,20 +403,6 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   }
 
 }
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-#if 0
-  if (huart->Instance == USART1)
-  {
-    qbufferWrite(&qbuffer[_DEF_UART1], &rx_data[_DEF_UART1], 1);
-
-    HAL_UART_Receive_IT(&huart1, (uint8_t *)&rx_data[_DEF_UART1], 1);
-  }
-#endif
-}
-
-
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 {

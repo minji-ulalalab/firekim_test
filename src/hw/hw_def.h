@@ -26,14 +26,14 @@
 #define _USE_HW_CLI
 #define      HW_CLI_CMD_NAME_MAX    16
 #define      HW_CLI_CMD_LIST_MAX    16
-#define      HW_CLI_LINE_HIS_MAX  4
 #define      HW_CLI_LINE_BUF_MAX  32
 
 #define HW_SLAVE_ID               1
 
-#define HW_ILLEGAL_FUNCTION       0x01
-#define HW_ILLEGAL_DATA_ADDRESS   0x02
-#define HW_ILLEGAL_DATA_VALUE     0x03
+#define HW_ILLEGAL_FUNCTION         0x01
+#define HW_ILLEGAL_DATA_ADDRESS     0x02
+#define HW_ILLEGAL_DATA_VALUE       0x03
+#define HW_SLAVE_DEVICE_FAILURE     0x04
 
 #define _MODBUS_FLASH_ADDR       0x0800F000
 #define _SLAVE_ID_FLASH_ADDR     0x800F000              //size -> uint16_t(2byte)

@@ -12,11 +12,10 @@
 #include "hw.h"
 #include "hw_def.h"
 
-#define SLAVE_ID               HW_SLAVE_ID
-
 #define ILLEGAL_FUNCTION       HW_ILLEGAL_FUNCTION
 #define ILLEGAL_DATA_ADDRESS   HW_ILLEGAL_DATA_ADDRESS
 #define ILLEGAL_DATA_VALUE     HW_ILLEGAL_DATA_VALUE
+#define SLAVE_DEVICE_FAILURE   HW_SLAVE_DEVICE_FAILURE
 
 
 bool ModbusInit(void);

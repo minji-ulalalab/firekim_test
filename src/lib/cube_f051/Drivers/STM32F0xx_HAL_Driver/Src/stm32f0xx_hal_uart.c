@@ -1392,7 +1392,6 @@ HAL_StatusTypeDef HAL_UART_Transmit_IT(UART_HandleTypeDef *huart, const uint8_t 
 
     /* Enable the Transmit Data Register Empty interrupt */
     ATOMIC_SET_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
-
     return HAL_OK;
   }
   else
@@ -3919,9 +3918,6 @@ static void UART_TxISR_8BIT(UART_HandleTypeDef *huart)
     {
       /* Disable the UART Transmit Data Register Empty Interrupt */
       ATOMIC_CLEAR_BIT(huart->Instance->CR1, USART_CR1_TXEIE);
-
-      /* Enable the UART Transmit Complete Interrupt */
-      ATOMIC_SET_BIT(huart->Instance->CR1, USART_CR1_TCIE);
     }
     else
     {

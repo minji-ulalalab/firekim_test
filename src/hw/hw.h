@@ -15,7 +15,8 @@
 #include "button.h"
 #include "modbusSlave.h"
 #include "flash.h"
-//#include "ap_cli.h"
+#include "cli.h"
+
 
 
 

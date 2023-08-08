@@ -25,6 +25,7 @@ static bool flashInSector(uint16_t sector_num, uint32_t addr, uint32_t length);
 
 bool flashInit(void)
 {
+
   for (int i=0; i<FLASH_MAX_PAGE; i++)
   {
     flash_tbl[i].addr = 0x8000000 +i*1024;
@@ -36,6 +37,7 @@ bool flashInit(void)
 
 bool flashErase(uint32_t addr, uint32_t length)
 {
+
   bool ret = false;
   HAL_StatusTypeDef status;
   FLASH_EraseInitTypeDef init;
@@ -82,6 +84,7 @@ bool flashErase(uint32_t addr, uint32_t length)
 
 bool flashWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
 {
+
   bool ret = true;
   HAL_StatusTypeDef status;
 
@@ -93,6 +96,7 @@ bool flashWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
   HAL_FLASH_Unlock();
 
   /*FLASH_TYPEPROGRAM_HALFWORD :!<Program a half-word (16-bit) at a specified address.*/
+
   for (int i=0; i<length; i+=2)
   {
     uint16_t data;

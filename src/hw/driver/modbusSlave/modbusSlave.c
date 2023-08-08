@@ -98,7 +98,7 @@ uint8_t readHoldingRegs (uint16_t* Holding_Registers_Database)
   //| SLAVE_ID | FUNCTION_CODE | BYTE COUNT | DATA      | CRC     |
   //| 1 BYTE   |  1 BYTE       |  1 BYTE    | N*2 BYTES | 2 BYTES |
 
-  TxData[0] = SLAVE_ID;  // slave ID
+  TxData[0] = RxData[0];  // slave ID
   TxData[1] = RxData[1];  // function code
   TxData[2] = numRegs*2;  // Byte count
   int indx = 3;  // we need to keep track of how many bytes has been stored in TxData Buffer
@@ -143,7 +143,7 @@ uint8_t readInputRegs (uint16_t* Input_Registers_Database)
   //| SLAVE_ID | FUNCTION_CODE | BYTE COUNT | DATA      | CRC     |
   //| 1 BYTE   |  1 BYTE       |  1 BYTE    | N*2 BYTES | 2 BYTES |
 
-  TxData[0] = SLAVE_ID;  // slave ID
+  TxData[0] = RxData[0];  // slave ID
   TxData[1] = RxData[1];  // function code
   TxData[2] = numRegs*2;  // Byte count
   int indx = 3;  // we need to keep track of how many bytes has been stored in TxData Buffer
@@ -187,7 +187,7 @@ uint8_t writeSingleReg (uint16_t* Holding_Registers_Database)
   //| SLAVE_ID | FUNCTION_CODE | Start Addr | Data     | CRC     |
   //| 1 BYTE   |  1 BYTE       |  2 BYTE    | 2 BYTES  | 2 BYTES |
 
-  TxData[0] = SLAVE_ID;    // slave ID
+  TxData[0] = RxData[0];    // slave ID
   TxData[1] = RxData[1];   // function code
   TxData[2] = RxData[2];   // Start Addr HIGH Byte
   TxData[3] = RxData[3];   // Start Addr LOW Byte

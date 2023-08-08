@@ -7,24 +7,6 @@
 
 
 #include "ap.h"
-/*
-void apInit(void)
-{
-  uartOpen(_DEF_UART1);
-  uartOpen(_DEF_UART2);
-}
-void apMain(void)
-{
-  while(1)
-  {
-    ledToggle(_DEF_LED1);
-    ledToggle(_DEF_LED2);
-    uartPrintf(_DEF_UART1, "UART1\r\n");
-    uartPrintf(_DEF_UART2, "UART2\r\n");
-    delay(500);
-  }
-}
-*/
 
 #define FLASH_BUF_SIZE      20
 
@@ -35,12 +17,11 @@ typedef enum {
     CLE_STATE
 } State;
 
+
+
 State ap_State;
 uint32_t ap_time;
 
-
-
-uint8_t slave_id = SLAVE_ID;
 uint8_t reset_flag = false;
 
 /*
@@ -91,7 +72,6 @@ static uint16_t Input_Registers_Database[50]={
 };
 
 extern uint8_t RxData[256];
-//extern bool cliExit_Flag;
 
 bool Update_Flash_From_Modbus_MAP(uint8_t *flash_data, uint8_t size);
 bool Update_Modbus_MAP_From_Flash(uint8_t *info_data, uint8_t size);
@@ -100,37 +80,33 @@ bool Update_Modbus_MAP_From_Flash(uint8_t *info_data, uint8_t size);
 
 void apInit(void)
 {
-  //uint8_t cli_flag_buf[2];
-  //uint8_t buf[FLASH_BUF_SIZE];
+  uint8_t cli_flag_buf[2];
+  uint8_t buf[FLASH_BUF_SIZE];
 
 
   uartOpen(_DEF_UART1); //debugging port PA9|PA10
   uartOpen(_DEF_UART2); //rs485 communicaation port PA2|PA3
   uartPrintf(_DEF_UART1, "_DEF_UART1 OK..\r\n");
-  //uartPrintf(_DEF_UART2, "_DEF_UART2 OK..\r\n");
-
-  //cliOpen(_DEF_UART1);  //debugging port
-  //cli_uartInit(Holding_Registers_Database);
+  uartPrintf(_DEF_UART2, "_DEF_UART2 OK..\r\n");
 
   //Read cli Flag
-  //flashRead(_CLI_MODE_FLASH_ADDR, cli_flag_buf, 2);
-  //reset
+  flashRead(_CLI_MODE_FLASH_ADDR, cli_flag_buf, 2);
+  //for test >> reset
   //cli_flag_buf[0] = 0x00;
   //cli_flag_buf[1] = 0x00;
   /*If CLI FLAG == 0xffff,
   * Update ModbusMap from Flash*/
-  /*
+
   if (((uint16_t)cli_flag_buf[0] << 8 | cli_flag_buf[1]) == 0xffff)
   {
     Update_Modbus_MAP_From_Flash(buf, FLASH_BUF_SIZE);
-  }*/
+  }
   /*If CLI FLAG == 0x0000,
    * Update Flash from ModbusMap(initial value)*/
-  /*
   else
   {
     Update_Flash_From_Modbus_MAP(buf, FLASH_BUF_SIZE);
-  }*/
+  }
 }
 
 void apMain(void)
@@ -155,7 +131,7 @@ void apMain(void)
                      break;
 
                  case CLE_STATE:
-                   //CLEStateHandler();
+                   CLEStateHandler();
                      break;
 
                  default:
@@ -183,6 +159,7 @@ uint8_t Read_Reed_state(void)
     Input_Registers_Database[0] = 0xffff;
     ledToggle(_DEF_LED1);
     ledToggle(_DEF_LED2);
+
   }
   else
   {
@@ -242,11 +219,8 @@ bool Update_Modbus_MAP_From_Flash(uint8_t *info_data, uint8_t size)
   {
     Holding_Registers_Database[i] =info_data[i*2]<< 8;
     Holding_Registers_Database[i] |= info_data[i*2+1] << 0;
-    i++;
   }
 
-
-  //uartPrintf(_DEF_UART1, "0x%X : 0x%X\r\n", _MODBUS_FLASH_ADDR, modbus_fuction_03_database[0]);
   return ret;
 }
 
@@ -254,19 +228,17 @@ bool Update_Modbus_MAP_From_Flash(uint8_t *info_data, uint8_t size)
 
 void InitStateHandler(void)
 {
-  //uint8_t buf[FLASH_BUF_SIZE];
+  uint8_t buf[FLASH_BUF_SIZE];
 
   printf("STATE.INIT_STATE\n");
 
   /*update from CLI*/
-  /*
   if(reset_flag)
   {
     Update_Flash_From_Modbus_MAP(buf, FLASH_BUF_SIZE);
     reset_flag = false;
   }
   set_uart_tbl(_DEF_UART2, Holding_Registers_Database);
-  */
   /*uart open*/
   uartOpen(_DEF_UART2);
 
@@ -294,13 +266,14 @@ void ModbusDataStateHandler(void)
   uint8_t ret = 0;
   printf("STATE.MODBUS_DATA_STATE\n");
 
-  slave_id = Holding_Registers_Database[0];
+  uint16_t slave_id = Holding_Registers_Database[0];
 
   /*the port get rx_data -> modbus protocol start point*/
 
   if (uartAvailable(_DEF_UART2)>0)
   {
     uartRead(_DEF_UART2);
+    uartPrintf(_DEF_UART1, "Modbus Start\r\n");
     if (RxData[0] == slave_id)
     {
       switch (RxData[1])
@@ -318,7 +291,11 @@ void ModbusDataStateHandler(void)
           modbusException(ILLEGAL_FUNCTION);
           break;
       }
-   }
+    }
+    else
+    {
+      modbusException(SLAVE_DEVICE_FAILURE);
+    }
   }
 
   if (ret == 2)
@@ -331,17 +308,14 @@ void ModbusDataStateHandler(void)
   }
 
 }
-/*
+
 void CLEStateHandler(void)
 {
-  cliExit_Flag = true;
+  cliOpen(_DEF_UART2);  //debugging port
+  cliMain(Holding_Registers_Database);
 
-  while(cliExit_Flag)
-  {
-    cliMain();
-  }
   reset_flag = true;
 
   ap_State = INIT_STATE;
 }
-*/
+
